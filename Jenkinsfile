@@ -5,7 +5,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 echo "Cloning the repository..."
-                git credentialsId: 'github-organization-token', url: 'https://github.com/TheProMovers/jenkins_test.git'
+                git branch: 'main', credentialsId: 'github-organization-token', url: 'https://github.com/TheProMovers/jenkins_test.git'
             }
         }
 
