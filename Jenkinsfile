@@ -6,6 +6,7 @@ pipeline {
         ARGOCD_USER = "admin"                        // Argo CD 사용자 이름
         ARGOCD_PASS = "1234qwerasdf@"                // Argo CD 관리자 비밀번호
         APP_NAME = "jenkins-test"                    // Argo CD 애플리케이션 이름
+        PATH = "/usr/local/bin:$PATH"  // PATH 환경 변수에 Argo CD CLI 경로 추가
     }
 
     stages {
