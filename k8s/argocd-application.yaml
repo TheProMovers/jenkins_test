@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jenkins-test-app  # ArgoCD에서 관리할 Application 이름
+  namespace: argocd       # ArgoCD 설치 네임스페이스
+spec:
+  destination:
+    namespace: default    # 매니페스트가 배포될 네임스페이스
+    server: https://kubernetes.default.svc  # Kubernetes API 서버
+  source:
+    repoURL: 'https://github.com/TheProMovers/jenkins_test.git'  # Git 저장소 URL
+    targetRevision: main   # 사용할 Git 브랜치 (예: main)
+    path: k8s              # 매니페스트 파일이 위치한 디렉토리
+  syncPolicy:
+    automated:
+      selfHeal: true        # 배포 상태와 Git 상태가 다르면 자동 복구
+      prune: true           # Git에 없는 리소스는 삭제
