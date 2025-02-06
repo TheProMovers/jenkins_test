@@ -1,35 +1,33 @@
 pipeline {
     agent any
 
-    environment {
-        GIT_CREDENTIAL = 'github-organization-token' // GitHub 자격 증명 ID
-        REPO_URL = 'https://github.com/TheProMovers/jenkins_test.git' // GitHub 저장소 URL
-    }
-
     stages {
-        stage('Clone Application Repository') {
+        stage('Clone Repository') {
             steps {
-                echo "Testing GitHub repository clone..."
-                script {
-                    try {
-                        // Git 저장소 클론
-                        git branch: 'main', credentialsId: "${GIT_CREDENTIAL}", url: "${REPO_URL}"
-                        echo "✅ Successfully cloned the repository."
-                    } catch (Exception e) {
-                        echo "❌ Failed to clone the repository. Check credentials or URL."
-                        error("Repository clone test failed.")
-                    }
-                }
+                echo "Cloning the repository..."
+                git branch: 'main', credentialsId: 'github-organization-token', url: 'https://github.com/TheProMovers/jenkins_test.git'
             }
         }
-    }
 
-    post {
-        success {
-            echo "✅ Repository clone test completed successfully!"
+        stage('Build') {
+            steps {
+                echo "Building the project..."
+                sh 'echo "Build logic here"'
+            }
         }
-        failure {
-            echo "❌ Repository clone test failed. Check logs for details."
+
+        stage('Test') {
+            steps {
+                echo "Running tests..."
+                sh 'echo "Test logic here"'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo "Deploying the project..."
+                sh 'echo "Deployment logic here"'
+            }
         }
     }
 }
