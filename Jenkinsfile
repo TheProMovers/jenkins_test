@@ -18,7 +18,17 @@ pipeline {
         stage('Login to Podman Registry') {
             steps {
                 echo "Logging into Podman registry..."
-                sh "podman login --username=jaeheelee --password=cksgml1130@ localhost:5000 --tls-verify=false"
+                script {
+                    def loginCommand = "podman login --username=jaeheelee --password=cksgml1130@ localhost:5000 --tls-verify=false"
+                    try {
+                        sh loginCommand
+                        echo "✅ Successfully logged into Podman registry."
+                    } catch (Exception e) {
+                        echo "⚠️ Failed to login to Podman registry. Retrying..."
+                        sleep 5
+                        sh loginCommand
+                    }
+                }
             }
         }
 
@@ -29,9 +39,16 @@ pipeline {
                         dir('backend') {
                             script {
                                 def backendImage = "${DOCKER_REGISTRY}/backend:latest"
-                                sh "podman build -t ${backendImage} ."
-                                sh "podman push --tls-verify=false ${backendImage}"
-                                echo "✅ Pushed backend image: ${backendImage}"
+                                try {
+                                    echo "Building backend image..."
+                                    sh "podman build -t ${backendImage} ."
+                                    echo "Pushing backend image to registry..."
+                                    sh "podman push --tls-verify=false ${backendImage}"
+                                    echo "✅ Pushed backend image: ${backendImage}"
+                                } catch (Exception e) {
+                                    echo "❌ Failed to build or push backend image."
+                                    error("Backend build and push failed.")
+                                }
                             }
                         }
                     }
@@ -42,9 +59,16 @@ pipeline {
                         dir('frontend') {
                             script {
                                 def frontendImage = "${DOCKER_REGISTRY}/frontend:latest"
-                                sh "podman build -t ${frontendImage} ."
-                                sh "podman push --tls-verify=false ${frontendImage}"
-                                echo "✅ Pushed frontend image: ${frontendImage}"
+                                try {
+                                    echo "Building frontend image..."
+                                    sh "podman build -t ${frontendImage} ."
+                                    echo "Pushing frontend image to registry..."
+                                    sh "podman push --tls-verify=false ${frontendImage}"
+                                    echo "✅ Pushed frontend image: ${frontendImage}"
+                                } catch (Exception e) {
+                                    echo "❌ Failed to build or push frontend image."
+                                    error("Frontend build and push failed.")
+                                }
                             }
                         }
                     }
@@ -73,8 +97,14 @@ pipeline {
 
         stage('Verify Deployment') {
             steps {
-                echo "Waiting for backend to be ready..."
-                sh 'kubectl rollout status deployment/jenkins-test-deployment -n default'
+                echo "Verifying deployment..."
+                try {
+                    sh 'kubectl rollout status deployment/jenkins-test-deployment -n default'
+                    echo "✅ Deployment verification complete."
+                } catch (Exception e) {
+                    echo "❌ Deployment verification failed."
+                    error("Deployment verification failed.")
+                }
             }
         }
     }
