@@ -93,7 +93,7 @@ pipeline {
 
         stage('Verify Deployment') {
             steps {
-                echo "Waiting for backend to be ready..."
+                echo "Verifying deployment..."
                 try {
                     sh 'kubectl rollout status deployment/jenkins-test-deployment -n default'
                     echo "✅ Deployment verification complete."
