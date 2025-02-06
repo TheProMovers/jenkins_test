@@ -94,12 +94,14 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 echo "Verifying deployment..."
-                try {
-                    sh 'kubectl rollout status deployment/jenkins-test-deployment -n default'
-                    echo "✅ Deployment verification complete."
-                } catch (Exception e) {
-                    echo "❌ Deployment verification failed."
-                    error("Deployment verification failed.")
+                script {
+                    try {
+                        sh 'kubectl rollout status deployment/jenkins-test-deployment -n default'
+                        echo "✅ Deployment verification complete."
+                    } catch (Exception e) {
+                        echo "❌ Deployment verification failed."
+                        error("Deployment verification failed.")
+                    }
                 }
             }
         }
