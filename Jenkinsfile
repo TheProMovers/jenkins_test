@@ -2,16 +2,17 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REGISTRY = 'localhost:5000'
+        DOCKER_REGISTRY = 'localhost:5000' // Podman Registry URL
         GIT_CREDENTIAL = 'github-organization-token'  // GitHub Credentials ID
-        K8S_MANIFEST_REPO = 'https://github.com/TheProMovers/jenkins_k8s.git' // 배포용 Git 저장소
+        K8S_MANIFEST_REPO = 'https://github.com/TheProMovers/jenkins_k8s.git' // Kubernetes Manifest 저장소
+        REPO_URL = 'https://github.com/TheProMovers/jenkins_test.git' // Application Git 저장소
     }
 
     stages {
         stage('Clone Application Repository') {
             steps {
                 echo "Cloning application repository..."
-                git branch: 'main', credentialsId: "${GIT_CREDENTIAL}", url: 'https://github.com/TheProMovers/jenkins_test.git'
+                git branch: 'main', credentialsId: "${GIT_CREDENTIAL}", url: "${REPO_URL}"
             }
         }
 
@@ -19,7 +20,7 @@ pipeline {
             steps {
                 echo "Logging into Podman registry..."
                 script {
-                    def loginCommand = "podman login --username=jaeheelee --password=cksgml1130@ localhost:5000 --tls-verify=false"
+                    def loginCommand = "podman login --username=jaeheelee --password=cksgml1130@ ${DOCKER_REGISTRY} --tls-verify=false"
                     try {
                         sh loginCommand
                         echo "✅ Successfully logged into Podman registry."
@@ -40,6 +41,7 @@ pipeline {
                             script {
                                 def backendImage = "${DOCKER_REGISTRY}/backend:latest"
                                 try {
+                                    echo "Building and pushing backend image..."
                                     sh "podman build -t ${backendImage} ."
                                     sh "podman push --tls-verify=false ${backendImage}"
                                     echo "✅ Pushed backend image: ${backendImage}"
@@ -58,6 +60,7 @@ pipeline {
                             script {
                                 def frontendImage = "${DOCKER_REGISTRY}/frontend:latest"
                                 try {
+                                    echo "Building and pushing frontend image..."
                                     sh "podman build -t ${frontendImage} ."
                                     sh "podman push --tls-verify=false ${frontendImage}"
                                     echo "✅ Pushed frontend image: ${frontendImage}"
