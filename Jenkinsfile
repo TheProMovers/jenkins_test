@@ -40,9 +40,7 @@ pipeline {
                             script {
                                 def backendImage = "${DOCKER_REGISTRY}/backend:latest"
                                 try {
-                                    echo "Building backend image..."
                                     sh "podman build -t ${backendImage} ."
-                                    echo "Pushing backend image to registry..."
                                     sh "podman push --tls-verify=false ${backendImage}"
                                     echo "✅ Pushed backend image: ${backendImage}"
                                 } catch (Exception e) {
@@ -60,9 +58,7 @@ pipeline {
                             script {
                                 def frontendImage = "${DOCKER_REGISTRY}/frontend:latest"
                                 try {
-                                    echo "Building frontend image..."
                                     sh "podman build -t ${frontendImage} ."
-                                    echo "Pushing frontend image to registry..."
                                     sh "podman push --tls-verify=false ${frontendImage}"
                                     echo "✅ Pushed frontend image: ${frontendImage}"
                                 } catch (Exception e) {
@@ -97,7 +93,7 @@ pipeline {
 
         stage('Verify Deployment') {
             steps {
-                echo "Verifying deployment..."
+                echo "Waiting for backend to be ready..."
                 try {
                     sh 'kubectl rollout status deployment/jenkins-test-deployment -n default'
                     echo "✅ Deployment verification complete."
