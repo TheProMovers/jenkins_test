@@ -12,17 +12,14 @@ pipeline {
                 echo "Testing GitHub repository clone..."
                 script {
                     try {
-                        // 디렉토리 상태 확인
                         sh """
-                        echo "Checking Jenkins workspace..."
-                        ls -la /var/jenkins_home/workspace || echo "Workspace directory not found!"
-                        
-                        echo "Setting up Git configuration..."
+                        echo "Setting up Git global configuration..."
                         git config --global user.name "Jenkins CI"
                         git config --global user.email "ci@example.com"
-                        
-                        echo "Cloning repository..."
+
+                        echo "Attempting to clone repository..."
                         git clone ${REPO_URL} /tmp/repo
+                        cd /tmp/repo && git branch
                         """
                         echo "✅ Successfully cloned the repository."
                     } catch (Exception e) {
