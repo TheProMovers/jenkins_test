@@ -6,6 +6,7 @@ WORKDIR /app
 # 패키지 설치
 COPY package.json package-lock.json ./
 RUN npm install --legacy-peer-deps
+RUN npm install -g typescript  # TypeScript 글로벌 설치
 
 # 앱 코드 복사
 COPY . .
