@@ -1,7 +1,7 @@
 pipeline {
     agent any
 
-    // 환경 변수 정의
+    // 환경 변수 정의!
     environment {
         DOCKER_REGISTRY = 'localhost:5000' // Podman 레지스트리 주소
         GIT_CREDENTIAL = 'github-organization-token' // GitHub 자격 증명 ID
