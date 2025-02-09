@@ -133,7 +133,7 @@ pipeline {
     // 파이프라인 완료 후 작업
     post {
         success {
-            // 파이프라인 성공 시 메시지 출력
+            // 파이프라인 성공 시 메시지 출력!
             echo "✅ Pipeline completed successfully!"
         }
         failure {
