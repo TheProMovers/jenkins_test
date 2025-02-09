@@ -71,7 +71,7 @@ pipeline {
                                     sh '''
                                     ATTEMPTS=5
                                     for i in $(seq 1 $ATTEMPTS); do
-                                        podman build --dns=8.8.8.8 -t ${frontendImage} . && break
+                                        podman build --dns=8.8.8.8 -t ${frontendImage} -f Dockerfile . && break
                                         echo "Retrying frontend build ($i/$ATTEMPTS)..."
                                         sleep 5
                                     done
