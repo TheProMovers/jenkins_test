@@ -3,10 +3,8 @@ FROM node:20 AS builder
 
 WORKDIR /app
 
-# 미리 필요한 파일 복사
+# NPM 레지스트리 설정 및 패키지 설치
 COPY package.json package-lock.json ./
-
-# NPM 설정 및 패키지 설치
 RUN npm config set registry https://registry.npmmirror.com && \
     npm install --legacy-peer-deps || \
     (echo "Retrying with different DNS configuration" && sleep 5 && npm install --legacy-peer-deps)
@@ -14,8 +12,8 @@ RUN npm config set registry https://registry.npmmirror.com && \
 # 앱 코드 복사
 COPY . .
 
-# TypeScript 빌드 및 앱 빌드
-RUN npx tsc -b || npm install -g typescript && npm run build
+# Vite 빌드 실행
+RUN npm install -g typescript && npm run build
 
 # Nginx를 사용하여 정적 파일 제공
 FROM nginx:latest
