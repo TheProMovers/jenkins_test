@@ -42,7 +42,14 @@ pipeline {
                                 def backendImage = "${DOCKER_REGISTRY}/backend:latest"
                                 try {
                                     echo "Building Backend Image..."
-                                    sh "podman build --dns=8.8.8.8 -t ${backendImage} ."
+                                    sh '''
+                                    ATTEMPTS=5
+                                    for i in $(seq 1 $ATTEMPTS); do
+                                        podman build --dns=8.8.8.8 -t ${backendImage} . && break
+                                        echo "Retrying backend build ($i/$ATTEMPTS)..."
+                                        sleep 5
+                                    done
+                                    '''
                                     sh "podman push --tls-verify=false ${backendImage}"
                                     echo "✅ Pushed backend image: ${backendImage}"
                                 } catch (Exception e) {
@@ -61,11 +68,16 @@ pipeline {
                                 def frontendImage = "${DOCKER_REGISTRY}/frontend:latest"
                                 try {
                                     echo "Building Frontend Image..."
-                                    sh """
-                                        podman build --dns=8.8.8.8 -t ${frontendImage} . || 
-                                        (echo "Retrying with different DNS configuration" && sleep 5 && podman build --dns=1.1.1.1 -t ${frontendImage} .)
-                                    """
+                                    sh '''
+                                    ATTEMPTS=5
+                                    for i in $(seq 1 $ATTEMPTS); do
+                                        podman build --dns=8.8.8.8 -t ${frontendImage} . && break
+                                        echo "Retrying frontend build ($i/$ATTEMPTS)..."
+                                        sleep 5
+                                    done
+                                    '''
                                     sh "podman push --tls-verify=false ${frontendImage}"
+                                    echo "✅ Pushed frontend image: ${frontendImage}"
                                 } catch (Exception e) {
                                     echo "❌ Failed to build or push frontend image."
                                     error("Frontend build and push failed.")
@@ -81,7 +93,7 @@ pipeline {
             steps {
                 echo "Updating Kubernetes manifests..."
                 withCredentials([usernamePassword(credentialsId: "${GIT_CREDENTIAL}", usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
-                    sh """
+                    sh '''
                     git clone ${K8S_MANIFEST_REPO} k8s-repo
                     cd k8s-repo
                     sed -i 's|image: .*backend.*|image: ${DOCKER_REGISTRY}/backend:latest|' k8s/deployment.yaml
@@ -91,7 +103,7 @@ pipeline {
                     git add .
                     git commit -m "Update deployment images"
                     git push origin main
-                    """
+                    '''
                 }
             }
         }
