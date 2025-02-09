@@ -42,8 +42,9 @@ pipeline {
                                 def backendImage = "${DOCKER_REGISTRY}/backend:latest"
                                 try {
                                     echo "Building Backend Image..."
-                                    sh "podman build -t ${backendImage} ."
+                                    sh "podman build --dns=8.8.8.8 -t ${backendImage} ."
                                     sh "podman push --tls-verify=false ${backendImage}"
+                                    echo "✅ Pushed backend image: ${backendImage}"
                                 } catch (Exception e) {
                                     echo "❌ Failed to build or push backend image."
                                     error("Backend build and push failed.")
@@ -60,8 +61,11 @@ pipeline {
                                 def frontendImage = "${DOCKER_REGISTRY}/frontend:latest"
                                 try {
                                     echo "Building Frontend Image..."
-                                    sh "podman build --dns=8.8.8.8 -t ${frontendImage} ."
-                                    sh "podman push --tls-verify=false ${frontendImage}"
+                                    sh """
+                                    podman build --dns=8.8.8.8 -t ${frontendImage} . &&
+                                    podman push --tls-verify=false ${frontendImage}
+                                    """
+                                    echo "✅ Pushed frontend image: ${frontendImage}"
                                 } catch (Exception e) {
                                     echo "❌ Failed to build or push frontend image."
                                     error("Frontend build and push failed.")
