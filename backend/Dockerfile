@@ -1,5 +1,5 @@
 # Node.js 최신 LTS 버전 사용
-FROM node:18
+FROM node:20
 
 # 작업 디렉토리 설정
 WORKDIR /app
