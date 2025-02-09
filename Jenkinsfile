@@ -1,7 +1,7 @@
 pipeline {
     agent any
 
-    // 환경 변수 정의!
+    // 환경 변수 정의
     environment {
         DOCKER_REGISTRY = 'localhost:5000' // Podman 레지스트리 주소
         GIT_CREDENTIAL = 'github-organization-token' // GitHub 자격 증명 ID
@@ -14,7 +14,6 @@ pipeline {
             steps {
                 script {
                     echo "Setting up Git safe.directory..."
-                    // Git이 현재 작업 디렉토리를 신뢰하도록 설정
                     sh 'git config --global --add safe.directory /var/jenkins_home/workspace/CICD_TEST_Multibranch_main'
                 }
             }
@@ -24,9 +23,7 @@ pipeline {
             // 애플리케이션 소스 코드 클론
             steps {
                 echo "Cloning application repository..."
-                // GitHub에서 코드를 클론
                 git branch: 'main', credentialsId: "${GIT_CREDENTIAL}", url: 'https://github.com/TheProMovers/jenkins_test.git'
-                // GIT_CREDENTIAL는 Jenkins에서 정의한 GitHub 인증 정보를 사용
             }
         }
 
@@ -56,6 +53,7 @@ pipeline {
                                 def backendImage = "${DOCKER_REGISTRY}/backend:latest"
                                 try {
                                     echo "Building Backend Image..."
+                                    // Node.js 18을 기반으로 백엔드 빌드
                                     sh "podman build -t ${backendImage} ."
                                     sh "podman push --tls-verify=false ${backendImage}"
                                     echo "✅ Pushed backend image: ${backendImage}"
@@ -75,6 +73,7 @@ pipeline {
                                 def frontendImage = "${DOCKER_REGISTRY}/frontend:latest"
                                 try {
                                     echo "Building Frontend Image..."
+                                    // Node.js 18을 기반으로 프론트엔드 빌드
                                     sh "podman build -t ${frontendImage} ."
                                     sh "podman push --tls-verify=false ${frontendImage}"
                                     echo "✅ Pushed frontend image: ${frontendImage}"
