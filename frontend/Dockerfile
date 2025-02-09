@@ -1,11 +1,13 @@
-# Node.js 환경에서 빌드
+# Node.js 18 버전에서 빌드
 FROM node:18 AS builder
 
+# 작업 디렉토리 설정
 WORKDIR /app
 
-# 패키지 설치
+# 패키지 매니저 파일 복사 및 패키지 설치
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
+RUN npm install -g typescript
 
 # 앱 코드 복사
 COPY . .
