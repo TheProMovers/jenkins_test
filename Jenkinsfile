@@ -60,7 +60,7 @@ pipeline {
                                 def frontendImage = "${DOCKER_REGISTRY}/frontend:latest"
                                 try {
                                     echo "Building Frontend Image..."
-                                    sh "podman build -t ${frontendImage} ."
+                                    sh "podman build --dns=8.8.8.8 -t ${frontendImage} ."
                                     sh "podman push --tls-verify=false ${frontendImage}"
                                 } catch (Exception e) {
                                     echo "❌ Failed to build or push frontend image."
