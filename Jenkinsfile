@@ -62,10 +62,10 @@ pipeline {
                                 try {
                                     echo "Building Frontend Image..."
                                     sh """
-                                    podman build --dns=8.8.8.8 -t ${frontendImage} . &&
-                                    podman push --tls-verify=false ${frontendImage}
+                                        podman build --dns=8.8.8.8 -t ${frontendImage} . || 
+                                        (echo "Retrying with different DNS configuration" && sleep 5 && podman build --dns=1.1.1.1 -t ${frontendImage} .)
                                     """
-                                    echo "✅ Pushed frontend image: ${frontendImage}"
+                                    sh "podman push --tls-verify=false ${frontendImage}"
                                 } catch (Exception e) {
                                     echo "❌ Failed to build or push frontend image."
                                     error("Frontend build and push failed.")
